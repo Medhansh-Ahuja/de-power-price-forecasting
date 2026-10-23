@@ -1,0 +1,25 @@
+# --- Secrets: never commit ---
+.env
+
+# --- Data: large and re-downloadable ---
+data/*
+!data/.gitkeep
+*.duckdb
+*.duckdb.wal
+
+# --- Python ---
+.venv/
+__pycache__/
+*.pyc
+.pytest_cache/
+.ipynb_checkpoints/
+
+# --- Experiment tracking (MLflow local runs) ---
+mlruns/
+mlartifacts/
+
+# --- Editors and OS ---
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db

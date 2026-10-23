@@ -1,0 +1,15 @@
+# Data ingestion
+requests
+entsoe-py
+holidays
+python-dotenv
+
+# Storage and analysis
+duckdb
+pandas
+numpy
+matplotlib
+
+# Notebooks and tests
+jupyter
+pytest
