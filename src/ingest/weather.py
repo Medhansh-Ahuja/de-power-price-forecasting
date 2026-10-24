@@ -41,11 +41,22 @@ def save_weather(df):
 frames = []
 for name, (lat, lon) in LOCATIONS.items():
     print(f"Downloading {name}...")
-    frames.append(fetch_weather(name, lat, lon, "2024-01-01", "2024-01-07"))
+    frames.append(fetch_weather(name, lat, lon, "2019-01-01", "2026-10-17"))
 
 df = pd.concat(frames, ignore_index=True)
 save_weather(df)
 
 con = duckdb.connect(DB_PATH)
-con.sql("SELECT location, COUNT(*) AS hours FROM weather GROUP BY location").show()
+con.execute("SET TimeZone = 'UTC'")
+con.sql("""
+    SELECT location,
+           MIN(time) AS first_hour,
+           MAX(time) AS last_hour,
+           COUNT(*) - COUNT(wind_speed_100m) AS missing_wind,
+           ROUND(AVG(wind_speed_100m), 2) AS avg_wind,
+           ROUND(AVG(shortwave_radiation), 1) AS avg_sun
+    FROM weather
+    GROUP BY location
+    ORDER BY avg_wind DESC
+""").show()
 con.close()
