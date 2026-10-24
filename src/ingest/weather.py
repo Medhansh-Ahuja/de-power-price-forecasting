@@ -1,5 +1,6 @@
 import requests
 import pandas as pd
+import duckdb
 
 LOCATIONS = {
     "husum": (54.48, 9.05),
@@ -11,6 +12,7 @@ LOCATIONS = {
 }
 
 URL = "https://archive-api.open-meteo.com/v1/archive"
+DB_PATH = "data/power.duckdb"
 
 
 def fetch_weather(name, lat, lon, start_date, end_date):
@@ -25,8 +27,15 @@ def fetch_weather(name, lat, lon, start_date, end_date):
     response = requests.get(URL, params=params)
     response.raise_for_status()
     df = pd.DataFrame(response.json()["hourly"])
+    df["time"] = pd.to_datetime(df["time"], utc=True)
     df["location"] = name
     return df
+
+
+def save_weather(df):
+    con = duckdb.connect(DB_PATH)
+    con.execute("CREATE OR REPLACE TABLE weather AS SELECT * FROM df")
+    con.close()
 
 
 frames = []
@@ -35,6 +44,8 @@ for name, (lat, lon) in LOCATIONS.items():
     frames.append(fetch_weather(name, lat, lon, "2024-01-01", "2024-01-07"))
 
 df = pd.concat(frames, ignore_index=True)
-print(df.head())
-print(df.shape)
-print(df["location"].value_counts())
+save_weather(df)
+
+con = duckdb.connect(DB_PATH)
+con.sql("SELECT location, COUNT(*) AS hours FROM weather GROUP BY location").show()
+con.close()
