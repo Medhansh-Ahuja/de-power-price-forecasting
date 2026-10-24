@@ -29,6 +29,12 @@ def fetch_weather(name, lat, lon, start_date, end_date):
     return df
 
 
-df = fetch_weather("berlin", 52.52, 13.41, "2024-01-01", "2024-01-07")
+frames = []
+for name, (lat, lon) in LOCATIONS.items():
+    print(f"Downloading {name}...")
+    frames.append(fetch_weather(name, lat, lon, "2024-01-01", "2024-01-07"))
+
+df = pd.concat(frames, ignore_index=True)
 print(df.head())
 print(df.shape)
+print(df["location"].value_counts())
