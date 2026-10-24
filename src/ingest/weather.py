@@ -1,4 +1,5 @@
 import requests
+import pandas as pd
 
 url = "https://api.open-meteo.com/v1/forecast"
 params = {
@@ -10,5 +11,6 @@ params = {
 response = requests.get(url, params=params)
 data = response.json()
 
-print(data["hourly"]["time"][0])
-print(data["hourly"]["temperature_2m"][0])
+df = pd.DataFrame(data["hourly"])
+print(df.head())
+print(df.shape)
