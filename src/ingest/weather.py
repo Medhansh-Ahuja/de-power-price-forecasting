@@ -1,19 +1,34 @@
 import requests
 import pandas as pd
 
-url = "https://archive-api.open-meteo.com/v1/archive"
-params = {
-       "latitude": 52.52,
-       "longitude": 13.41,
-       "start_date": "2024-01-01",
-       "end_date": "2024-01-07",
-       "hourly": "temperature_2m,wind_speed_100m,shortwave_radiation",
-       "wind_speed_unit": "ms",
+LOCATIONS = {
+    "husum": (54.48, 9.05),
+    "rostock": (54.09, 12.10),
+    "berlin": (52.52, 13.41),
+    "essen": (51.46, 7.01),
+    "frankfurt": (50.11, 8.68),
+    "munich": (48.14, 11.58),
 }
 
-response = requests.get(url, params=params)
-data = response.json()
+URL = "https://archive-api.open-meteo.com/v1/archive"
 
-df = pd.DataFrame(data["hourly"])
+
+def fetch_weather(name, lat, lon, start_date, end_date):
+    params = {
+        "latitude": lat,
+        "longitude": lon,
+        "start_date": start_date,
+        "end_date": end_date,
+        "hourly": "temperature_2m,wind_speed_100m,shortwave_radiation",
+        "wind_speed_unit": "ms",
+    }
+    response = requests.get(URL, params=params)
+    response.raise_for_status()
+    df = pd.DataFrame(response.json()["hourly"])
+    df["location"] = name
+    return df
+
+
+df = fetch_weather("berlin", 52.52, 13.41, "2024-01-01", "2024-01-07")
 print(df.head())
 print(df.shape)
